@@ -22,8 +22,8 @@ const User = sequelize.define('user', {
     allowNull: false
   },
   role: {
-    type: DataTypes.STRING(20),
-    defaultValue: 'user',
+    type: DataTypes.STRING(10),
+    defaultValue: 'guest',
     allowNull: false
   },
   status: {

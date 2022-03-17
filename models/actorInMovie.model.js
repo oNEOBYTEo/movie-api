@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../util/database');
 
-const ActorsInMovie = sequelize.define('actorsInMovie', {
+const ActorInMovie = sequelize.define('actorsInMovie', {
   id: {
     primaryKey: true,
     type: DataTypes.INTEGER,
@@ -18,4 +18,4 @@ const ActorsInMovie = sequelize.define('actorsInMovie', {
   }
 });
 
-module.exports = { ActorsInMovie };
+module.exports = { ActorInMovie };

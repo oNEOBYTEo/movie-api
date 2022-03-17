@@ -18,7 +18,8 @@ const Review = sequelize.define('review', {
   },
   rating: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    defaultValue: 1
   },
   userId: {
     type: DataTypes.INTEGER,
