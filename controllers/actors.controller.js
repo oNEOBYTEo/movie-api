@@ -8,7 +8,7 @@ exports.getAllActors = catchAsync(async (req, res, next) => {
   const actors = await Actor.findAll({ where: { status: 'active' } });
 
   if (!actors) {
-    return next(new AppError(404, 'Users not found'));
+    return next(new AppError(404, 'Actors not found'));
   }
 
   res.status(200).json({
@@ -69,7 +69,7 @@ exports.deleteActor = catchAsync(async (req, res, next) => {
   const deletedActor = await Actor.findOne({ where: { id, status: 'active' } });
 
   if (!deletedActor) {
-    return next(new AppError(404, 'Cant delete post, invalid ID'));
+    return next(new AppError(404, 'Cant delete actor, invalid ID'));
   }
 
   await deletedActor.update({ status: 'deleted' });
