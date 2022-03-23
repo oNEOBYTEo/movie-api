@@ -8,6 +8,8 @@ const { catchAsync } = require('../util/catchAsync');
 const { AppError } = require('../util/appError');
 const { filterObj } = require('../util/filterObj');
 
+dotenv.config({ path: './config.env' });
+
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.findAll({
     where: { status: 'active' },
@@ -95,4 +97,23 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
   await deletedUser.update({ status: 'deleted' });
 
   res.status(204).json({ status: 'success' });
+});
+
+exports.logintUser = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ where: { email, status: 'active' } });
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return next(new AppError(400, 'Credentials are invalid'));
+  }
+
+  const token = await jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: { token }
+  });
 });
