@@ -1,5 +1,5 @@
 const { Movie } = require('../models/movie.model');
-
+const { ActorInMovie } = require('../models/actorInMovie.model');
 const { catchAsync } = require('../util/catchAsync');
 const { AppError } = require('../util/appError');
 const { filterObj } = require('../util/filterObj');
@@ -30,9 +30,9 @@ exports.getMovieById = catchAsync(async (req, res, next) => {
   });
 });
 exports.createNewMovie = catchAsync(async (req, res, next) => {
-  const { title, duration, description, imgUrl, genre } = req.body;
+  const { title, duration, description, imgUrl, genre, actors } = req.body;
 
-  if (!title || !duration || !description || !imgUrl || !genre) {
+  if (!title || !duration || !description || !imgUrl || !genre || actors) {
     return next(new AppError(400, 'Must provide a valid data'));
   }
 
@@ -43,6 +43,12 @@ exports.createNewMovie = catchAsync(async (req, res, next) => {
     imgUrl,
     genre
   });
+
+  const actorsInMoviesPromises = actors.map(async (actorId) => {
+    return await ActorInMovie.create({ actorId, movieId: newMovie.id });
+  });
+
+  await Promise.all(actorsInMoviesPromises);
 
   res.status(201).json({
     status: 'success',

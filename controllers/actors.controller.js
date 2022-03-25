@@ -30,9 +30,9 @@ exports.getActorById = catchAsync(async (req, res, next) => {
   });
 });
 exports.createNewActor = catchAsync(async (req, res, next) => {
-  const { name, country, age, profilePic } = req.body;
+  const { name, country, age, profilePic, role } = req.body;
 
-  if (!name || !country || !age || !profilePic) {
+  if (!name || !country || !age || !profilePic || !role) {
     return next(new AppError(400, 'Must provide a valid data'));
   }
 
@@ -40,7 +40,8 @@ exports.createNewActor = catchAsync(async (req, res, next) => {
     name,
     country,
     age,
-    profilePic
+    profilePic,
+    role
   });
 
   res.status(201).json({

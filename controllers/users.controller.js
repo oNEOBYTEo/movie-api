@@ -26,15 +26,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 exports.getUserById = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const user = await User.findOne({
-    where: { id, status: 'active' },
-    attributes: { exclude: 'password' }
-  });
-
-  if (!user) {
-    return next(new AppError(404, 'No user found with the given ID'));
-  }
+  const { user } = req.user;
 
   res.status(200).json({
     status: 'success',
@@ -65,14 +57,8 @@ exports.createNewUser = catchAsync(async (req, res, next) => {
   });
 });
 exports.updateUser = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+  const { user: updatedUser } = req.user;
   const data = filterObj(req.body, 'username', 'email', 'password', 'role');
-
-  const updatedUser = await User.findOne({ where: { id, status: 'active' } });
-
-  if (!updatedUser) {
-    return next(new AppError(404, 'Cant update actor, invalid ID'));
-  }
 
   if (data.password) {
     const salt = await bcrypt.genSalt(12);
@@ -87,8 +73,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   });
 });
 exports.deleteUser = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const deletedUser = await User.findOne({ where: { id, status: 'active' } });
+  const { user: deletedUser } = req.user;
 
   if (!deletedUser) {
     return next(new AppError(404, 'Cant delete user, invalid ID'));
