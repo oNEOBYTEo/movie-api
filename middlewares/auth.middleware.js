@@ -1,15 +1,14 @@
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
 const { promisify } = require('util');
 
+// Models
 const { User } = require('../models/user.model');
 
-const { AppError } = require('../util/catchAsync');
+// Utils
+const { AppError } = require('../util/appError');
 const { catchAsync } = require('../util/catchAsync');
 
-dotenv.config({ path: './config.env' });
-
-exports.validate = catchAsync(async (req, res, next) => {
+exports.validateSession = catchAsync(async (req, res, next) => {
   let token;
 
   if (
@@ -29,10 +28,8 @@ exports.validate = catchAsync(async (req, res, next) => {
   );
 
   const user = await User.findOne({
-    where: { id: decodedToken.id, status: 'active' },
-    attributes: {
-      exclude: ['password']
-    }
+    attributes: { exclude: ['password'] },
+    where: { id: decodedToken.id, status: 'active' }
   });
 
   if (!user) {
@@ -40,7 +37,6 @@ exports.validate = catchAsync(async (req, res, next) => {
   }
 
   req.currentUser = user;
-
   next();
 });
 
@@ -48,5 +44,7 @@ exports.protectAdmin = catchAsync(async (req, res, next) => {
   if (req.currentUser.role !== 'admin') {
     return next(new AppError(403, 'Access denied'));
   }
+
+  // Grant access
   next();
 });

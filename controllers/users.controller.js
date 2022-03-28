@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const { validationResult } = require('express-validator');
 
 const { User } = require('../models/user.model');
 
@@ -26,18 +27,21 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 exports.getUserById = catchAsync(async (req, res, next) => {
-  const { user } = req.user;
+  const { user } = req;
 
-  res.status(200).json({
-    status: 'success',
-    data: { user }
-  });
+  res.status(200).json({ status: 'success', data: { user } });
 });
 exports.createNewUser = catchAsync(async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
 
-  if (!username || !email || !password) {
-    return next(new AppError(404, 'Must provide a valid data'));
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const errorMsg = errors
+      .array()
+      .map(({ msg }) => msg)
+      .join('. ');
+    return next(new AppError(400, errorMsg));
   }
 
   const salt = await bcrypt.genSalt(12);
@@ -47,7 +51,8 @@ exports.createNewUser = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     username,
     email,
-    password
+    password: hashedPassword,
+    role
   });
   newUser.password = undefined;
 
@@ -57,7 +62,7 @@ exports.createNewUser = catchAsync(async (req, res, next) => {
   });
 });
 exports.updateUser = catchAsync(async (req, res, next) => {
-  const { user: updatedUser } = req.user;
+  const { user: updatedUser } = req;
   const data = filterObj(req.body, 'username', 'email', 'password', 'role');
 
   if (data.password) {
@@ -73,7 +78,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   });
 });
 exports.deleteUser = catchAsync(async (req, res, next) => {
-  const { user: deletedUser } = req.user;
+  const { user: deletedUser } = req;
 
   if (!deletedUser) {
     return next(new AppError(404, 'Cant delete user, invalid ID'));

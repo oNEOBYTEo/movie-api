@@ -1,3 +1,6 @@
+const { Actor } = require('./actor.model');
+const { Movie } = require('./movie.model');
+
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../util/database');
 
@@ -8,13 +11,21 @@ const ActorInMovie = sequelize.define('actorsInMovie', {
     autoIncrement: true,
     allowNull: false
   },
-  userId: {
+  actorId: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: Actor,
+      key: 'id'
+    }
   },
   movieId: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: Movie,
+      key: 'id'
+    }
   }
 });
 
